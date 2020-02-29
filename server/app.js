@@ -44,18 +44,57 @@ router
         res.status(200).send(mockData);
     })
     .post((req,res)=> {
-        mockData.push(req.body);
+        let itemId = (req['body']['todoItemId']);
+        let doesDataExist = false;
+        mockData.forEach( object => {
+            if((object['todoItemId']) === itemId) {
+                doesDataExist = true;
+                object['name'] = req['body']['name'];
+                object['priority'] = req['body']['priority'];
+                object['completed'] = req['body']['completed'];
+                mockData.splice(itemId,1,object);
+            };
+        });
+        if (!doesDataExist) mockData.push(req.body);
         res.status(201).send(req.body);
     })
 
 router
     .route('/api/TodoItems/:number')
     .get((req,res)=> {
-        res.status(200).send(mockData[req.params.number])
+        let itemId = (req.params.number);
+        let doesDataExist = false;
+        let arrayIndex;
+        mockData.forEach( (object, i) => {
+            if((object['todoItemId']) == itemId) {
+                doesDataExist = true;
+                arrayIndex = i;
+            };
+        });
+        if (doesDataExist) {
+            res.status(200).send(mockData[arrayIndex]);
+        } else {
+            res.status(404).send('Sorry there is no todo item with this number to view');
+            console.log(doesDataExist);
+            console.log(arrayIndex);
+        }
     })
     .delete((req,res)=> {
-        res.status(200).send(mockData[req.params.number]);
-        delete mockData[req.params.number];
+        let itemId = (req.params.number);
+        let doesDataExist = false;
+        let arrayIndex;
+        mockData.forEach( (object, i) => {
+            if((object['todoItemId']) == itemId) {
+                doesDataExist = true;
+                arrayIndex = i;
+            };
+        });
+        if (doesDataExist) {
+            res.status(200).send(mockData[arrayIndex]);
+            mockData.splice(arrayIndex,1);
+        } else {
+            res.status(404).send('Sorry there is no todo item with this value to delete');
+        }
     })
 
 module.exports = app;
